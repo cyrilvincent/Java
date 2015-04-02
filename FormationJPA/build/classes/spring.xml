@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/data/jpa
+    http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+    
+    <context:annotation-config/>
+   
+	<bean id="Book" class="formationJEE.entities.Book" scope="prototype" />
+	
+	<!-- <bean id="BookRepositoryWithoutIoD" class="formationJEE.repositories.BookRepository" scope="singleton"/> -->
+	
+	<bean id="EntityManagerFactoryByPOJOSingleton"
+		class="formationJEE.repositories.EntityManagerFactorySingleton"
+		factory-method="getEntityManagerFactory" scope="singleton"/>
+	
+	<bean id="EntityManagerFactory"  class="javax.persistence.Persistence" factory-method="createEntityManagerFactory" scope="singleton">
+		<constructor-arg value="FormationJPA"/> <!-- JPA Persistence Unit -->
+	</bean>
+	
+	<bean id="EntityManager" factory-bean="EntityManagerFactory" factory-method="createEntityManager" scope="singleton"/>
+	
+	<bean id="EntityManagerScopeRequest" factory-bean="EntityManagerFactory" factory-method="createEntityManager" scope="request"/>
+	<!-- 
+	A Ajouter dans <web-app>
+	<listener>
+    <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	  </listener>
+	  
+	  <filter> 
+	    <filter-name>requestContextFilter</filter-name> 
+	    <filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
+	  </filter> 
+	  <filter-mapping> 
+	    <filter-name>requestContextFilter</filter-name> 
+	    <url-pattern>/*</url-pattern>
+	  </filter-mapping>
+	 -->
+	
+	
+	<!-- <bean id="BookRepositoryBySharedEntityManagerBean" class="formationJEE.repositories.BookRepository" scope="prototype">
+		<property name="entityManager">
+	        <bean class = "org.springframework.orm.jpa.support.SharedEntityManagerBean">
+	            <property name = "entityManagerFactory" ref="EntityManagerFactory"/>  
+	        </bean>
+   		</property>
+	</bean> -->
+	
+	<bean id="BookRepository" class="formationJEE.repositories.BookRepository" scope="prototype">
+		 <property name="entityManager" ref="EntityManager"/> 
+	</bean>
+	
+	<bean id="BookService" class="formationJEE.services.BookService" scope="prototype">
+		<!-- <property name="repository" ref="BookRepository"/> -->
+	</bean>
+	
+	<bean id="BookViewModel" class="formationJEE.viewModels.BookViewModel" scope="prototype"/>
+	
+	<bean id="BookViewModelAdapter" class="formationJEE.adapters.BookViewModelAdapter" scope="prototype"/>
+	
+	<bean id="BookTO" class="formationJEE.transportObjects.BookTO" scope="prototype"/>
+	
+	<bean id="BookTOAdapter" class="formationJEE.adapters.BookTOAdapter" scope="prototype"/>
+	
+	<bean id="BookController" class="formationJEE.controllers.BookController" scope="prototype">
+		<property name="adapter" ref="BookViewModelAdapter"/>
+		<property name="viewModel" ref="BookViewModel"/>
+		<property name="service" ref="BookService"/>
+	</bean>
+	
+	<bean id="BookTOController" class="formationJEE.controllers.BookTOController" scope="prototype">
+		<property name="adapter" ref="BookTOAdapter"/>
+		<property name="viewModel" ref="BookTO"/>
+		<property name="service" ref="BookService"/>
+	</bean>
+	
+	
+</beans>
